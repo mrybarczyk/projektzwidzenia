@@ -15,24 +15,55 @@
 using namespace std;
 using namespace cv;
 
-Mat imageCorrection(Mat m){
-// color ---> bw
+//splits image into four by finding four rectangles (with eight coordinates)
+vector<vector<Point>> findCoords(Mat img) {
+    vector<vector < Point >> coordinates;
+    int rows = img.rows;
+    int cols = img.cols;
+    int rowsHalf = cols / 2;
+    int colsHalf = cols / 2;
+
+    vector<Point> one, two, three, four;
+    // UPPER LEFT
+    one.push_back(Point(0, 0));
+    one.push_back(Point(rowsHalf, colsHalf));
+    // UPPER RIGHT
+    two.push_back(Point(rowsHalf, colsHalf));
+    two.push_back(Point(0, cols));
+    // DOWN LEFT
+    three.push_back(Point(rows, 0));
+    three.push_back(Point(rowsHalf, colsHalf));
+    // DOWN RIGHT
+    four.push_back(Point(rowsHalf, colsHalf));
+    four.push_back(Point(rows, cols));
+
+    //and now to final array.
+    coordinates.push_back(one);
+    coordinates.push_back(two);
+    coordinates.push_back(three);
+    coordinates.push_back(four);
+
+    return coordinates;
+}
+
+Mat imageCorrection(Mat m) {
+    // color ---> bw
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
     Mat done;
     Mat thresh;
-    Size s = Size(8,2);
+    Size s = Size(8, 2);
     cvtColor(m, done, COLOR_BGR2GRAY);
-//sobel filter
+    //sobel filter
     Sobel(done, done, CV_8U, 1, 0);
-//threshold     
+    //threshold     
     threshold(done, thresh, 0, 255, THRESH_OTSU + THRESH_BINARY);
-//structuring element
+    //structuring element
     getStructuringElement(MORPH_RECT, s);
-//i have. no idea if below will work
+    //i have. no idea if below will work
     morphologyEx(thresh, thresh, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-//contours
-     
+    //contours
+
 
 }
 
@@ -47,6 +78,7 @@ int main() {
         return -1;
     }
 
+    vector<Point> coords;
     Mat frame1g, frame1, frame2, frame2g, dif, bdif, t, h;
     vector<vector<Point>> contours;
     vector<Point> largest_contour;
