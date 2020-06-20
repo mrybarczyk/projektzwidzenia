@@ -17,19 +17,19 @@ using namespace cv;
 
 //grid of image
 //TODO : grid should be able to include rects that aren square if we cant get squares.
-vector<Rect> findCells(Mat img, int GRID_SIZE)
+vector<Rect> findCells(Mat img, int GRID_SIZE, int x, int y)
 {
     vector<Rect> cells;
     int width = img.cols;
     cout << "Cols:" << width << endl;
     int height = img.rows;
     cout << "Rows:" << height << endl;
-    for (int y = 0; y < height; y += GRID_SIZE) {
-        for (int x = 0; x < width; x += GRID_SIZE) {
+    for (y; y < height; y += GRID_SIZE) {
+        for (x; x < width; x += GRID_SIZE) {
             //int k = x * y + x;
             int xw = GRID_SIZE;
             int yh = GRID_SIZE;
-            if (y + GRID_SIZE > height){
+            if (y + GRID_SIZE > height) {
                 yh = height - y;
             }
             if (x + GRID_SIZE > width) {
@@ -97,14 +97,41 @@ int main() {
 
     Mat img;
     img = imread("image.jpg");
-    vector<Rect> grid = findCells(img, 120);
-    findHistograms(img, grid);
+    int x = 0;
+    int y = 0;
+    vector<Rect> grid = findCells(img, 120, x, y);
+    //findHistograms(img, grid);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
     while (true) {
         imshow("test", img);
         int button = (char)waitKey(10);
         if (button == 27) break;
+        if (button == 119 && y >= 10) {
+            y -= 10;
+            grid = findCells(img, 120, x, y);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+            continue;
+        }
+        if (button == 115 && y < img.rows) {
+            y += 10;
+            grid = findCells(img, 120, x, y);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
+        if (button == 100 && x < img.cols) {
+            x += 10;
+            grid = findCells(img, 120, x, y);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
+        if (button == 97 && x >= 10) {
+            x -= 10;
+            grid = findCells(img, 120, x, y);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
     }
 
     destroyAllWindows();
