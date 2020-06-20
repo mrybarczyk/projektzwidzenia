@@ -16,6 +16,7 @@ using namespace std;
 using namespace cv;
 
 //grid of image
+//TODO : grid should be able to include rects that aren square if we cant get squares.
 vector<Rect> findCells(Mat img, int GRID_SIZE)
 {
     vector<Rect> cells;
@@ -50,14 +51,15 @@ Mat imageCorrection(Mat m) {
     //i have. no idea if below will work
     morphologyEx(thresh, thresh, RETR_EXTERNAL, CHAIN_APPROX_NONE);
     //contours
-
-
+    return thresh;
 }
 
 int main() {
     Mat img;
     img = imread("image.jpg");
-    vector<Rect> grid = findCells(img, 4);
+    vector<Rect> grid = findCells(img, 120);
+    for (Rect r : grid)
+        rectangle(img, r, (255, 255, 255), 1, 8, 0);
 
     while (true) {
         imshow("test", img);
