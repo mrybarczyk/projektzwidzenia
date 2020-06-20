@@ -57,12 +57,15 @@ Mat imageCorrection(Mat m) {
 }
 
 int main() {
+
+    // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
+    //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
+
     Mat img;
     img = imread("image.jpg");
     vector<Rect> grid = findCells(img, 120);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
-
     while (true) {
         imshow("test", img);
         int button = (char)waitKey(10);
