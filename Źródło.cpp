@@ -36,14 +36,14 @@ vector<Rect> findCells(Mat img, int GRID_SIZE)
     return cells;
 }
 
-Mat imageCorrection(Mat m) {
+Mat imagePrep(Mat img) {
     // color ---> bw
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
     Mat done;
     Mat thresh;
     Size s = Size(8, 2);
-    cvtColor(m, done, COLOR_BGR2GRAY);
+    cvtColor(img, done, COLOR_BGR2GRAY);
     //sobel filter
     Sobel(done, done, CV_8U, 1, 0);
     //threshold     
@@ -56,6 +56,32 @@ Mat imageCorrection(Mat m) {
     return thresh;
 }
 
+vector<Mat> findHistograms(Mat img, vector<Rect> gr) {
+    vector<Mat> hists;
+    Mat temp = img;
+    int k = 1;
+    temp = imagePrep(temp);
+    int histSize = 256; // bin size
+    float range[] = { 0, 256 };
+    const float* histRange = { range };
+
+    bool uniform = true;
+    bool accumulate = false;
+
+    Mat hist;
+
+    int channels[] = { 0 };
+    for (Rect r : gr) {
+        Mat tempHist;
+        Mat tempCropped = temp(r);
+        calcHist(&tempCropped, 1, channels, Mat(), tempHist, 1, &histSize, &histRange, uniform, accumulate);
+        hists.push_back(tempHist);
+        // Access histogram value of white by:
+        // tempHist.at<float>(255);
+    }
+    return hists;
+}
+
 int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
@@ -64,6 +90,7 @@ int main() {
     Mat img;
     img = imread("image.jpg");
     vector<Rect> grid = findCells(img, 120);
+    //findHistograms(img, grid);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
     while (true) {
