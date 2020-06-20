@@ -15,35 +15,22 @@
 using namespace std;
 using namespace cv;
 
-//splits image into four by finding four rectangles (with eight coordinates)
-vector<vector<Point>> findCoords(Mat img) {
-    vector<vector < Point >> coordinates;
-    int rows = img.rows;
-    int cols = img.cols;
-    int rowsHalf = cols / 2;
-    int colsHalf = cols / 2;
-
-    vector<Point> one, two, three, four;
-    // UPPER LEFT
-    one.push_back(Point(0, 0));
-    one.push_back(Point(rowsHalf, colsHalf));
-    // UPPER RIGHT
-    two.push_back(Point(rowsHalf, colsHalf));
-    two.push_back(Point(0, cols));
-    // DOWN LEFT
-    three.push_back(Point(rows, 0));
-    three.push_back(Point(rowsHalf, colsHalf));
-    // DOWN RIGHT
-    four.push_back(Point(rowsHalf, colsHalf));
-    four.push_back(Point(rows, cols));
-
-    //and now to final array.
-    coordinates.push_back(one);
-    coordinates.push_back(two);
-    coordinates.push_back(three);
-    coordinates.push_back(four);
-
-    return coordinates;
+//grid of image
+vector<Rect> findCells(Mat img, int GRID_SIZE)
+{
+vector<Rect> cells;
+int width = src.cols;
+int height = src.rows;
+for (int y = 0; y < height - GRID_SIZE; y += GRID_SIZE) {
+    for (int x = 0; x < width - GRID_SIZE; x += GRID_SIZE) {
+        int k = x * y + x;
+        Rect grid_rect(x, y, GRID_SIZE, GRID_SIZE);
+        cout << grid_rect << endl;
+        cells.push_back(grid_rect);
+        waitKey();
+    }
+}
+return cells;
 }
 
 Mat imageCorrection(Mat m) {
