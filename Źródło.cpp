@@ -21,9 +21,11 @@ vector<Rect> findCells(Mat img, int GRID_SIZE)
 {
     vector<Rect> cells;
     int width = img.cols;
+    cout << "Cols:" << width << endl;
     int height = img.rows;
-    for (int y = 0; y < height - GRID_SIZE; y += GRID_SIZE) {
-        for (int x = 0; x < width - GRID_SIZE; x += GRID_SIZE) {
+    cout << "Rows:" << height << endl;
+    for (int y = 0; y < height; y += GRID_SIZE) {
+        for (int x = 0; x < width; x += GRID_SIZE) {
             int k = x * y + x;
             Rect grid_rect(x, y, GRID_SIZE, GRID_SIZE);
             cout << grid_rect << endl;
