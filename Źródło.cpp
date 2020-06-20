@@ -100,35 +100,42 @@ int main() {
     int x = 0;
     int y = 0;
     vector<Rect> grid = findCells(img, 120, x, y);
-    //findHistograms(img, grid);
+    vector<Mat> hists = findHistograms(img, grid);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
     while (true) {
         imshow("test", img);
         int button = (char)waitKey(10);
         if (button == 27) break;
+        // s
         if (button == 119 && y >= 10) {
             y -= 10;
             grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
             for (Rect r : grid)
                 rectangle(img, r, (255, 255, 255), 1, 8, 0);
-            continue;
         }
+        // w
         if (button == 115 && y < img.rows) {
             y += 10;
             grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
             for (Rect r : grid)
                 rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
+        // d
         if (button == 100 && x < img.cols) {
             x += 10;
             grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
             for (Rect r : grid)
                 rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
+        // a
         if (button == 97 && x >= 10) {
             x -= 10;
             grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
             for (Rect r : grid)
                 rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
