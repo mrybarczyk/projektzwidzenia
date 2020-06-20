@@ -19,8 +19,8 @@ using namespace cv;
 vector<Rect> findCells(Mat img, int GRID_SIZE)
 {
 vector<Rect> cells;
-int width = src.cols;
-int height = src.rows;
+int width = img.cols;
+int height = img.rows;
 for (int y = 0; y < height - GRID_SIZE; y += GRID_SIZE) {
     for (int x = 0; x < width - GRID_SIZE; x += GRID_SIZE) {
         int k = x * y + x;
