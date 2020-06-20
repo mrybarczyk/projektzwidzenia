@@ -26,8 +26,16 @@ vector<Rect> findCells(Mat img, int GRID_SIZE)
     cout << "Rows:" << height << endl;
     for (int y = 0; y < height; y += GRID_SIZE) {
         for (int x = 0; x < width; x += GRID_SIZE) {
-            int k = x * y + x;
-            Rect grid_rect(x, y, GRID_SIZE, GRID_SIZE);
+            //int k = x * y + x;
+            int xw = GRID_SIZE;
+            int yh = GRID_SIZE;
+            if (y + GRID_SIZE > height){
+                yh = height - y;
+            }
+            if (x + GRID_SIZE > width) {
+                xw = width - x;
+            }
+            Rect grid_rect(x, y, xw, yh);
             cout << grid_rect << endl;
             cells.push_back(grid_rect);
             waitKey();
@@ -90,7 +98,7 @@ int main() {
     Mat img;
     img = imread("image.jpg");
     vector<Rect> grid = findCells(img, 120);
-    //findHistograms(img, grid);
+    findHistograms(img, grid);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
     while (true) {
