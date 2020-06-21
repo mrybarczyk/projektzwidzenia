@@ -21,9 +21,9 @@ vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j)
 {
     vector<Rect> cells;
     int width = img.cols;
-    cout << "Cols:" << width << endl;
+    //cout << "Cols:" << width << endl;
     int height = img.rows;
-    cout << "Rows:" << height << endl;
+    //cout << "Rows:" << height << endl;
     for (int y = j; y < height; y += GRID_SIZE) {
         for (int x = i; x < width; x += GRID_SIZE) {
             //int k = x * y + x;
@@ -36,7 +36,7 @@ vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j)
                 xw = width - x;
             }
             Rect grid_rect(x, y, xw, yh);
-            cout << grid_rect << endl;
+            //cout << grid_rect << endl;
             cells.push_back(grid_rect);
             //waitkey deleted
         }
@@ -90,6 +90,24 @@ vector<Mat> findHistograms(Mat img, vector<Rect> gr) {
     return hists;
 }
 
+void processHistograms(vector<Mat> hist, int size, int framecount) {
+    int pixelCount = size * size;
+    float curr = 0;
+    float max = 0;
+    int rectCounter = 1;
+    int maxRectIndex = 0;
+    for (Mat h : hist) {
+        curr = h.at<float>(255);
+        if (max < curr) {
+            max = curr;
+            maxRectIndex = rectCounter;
+        }
+        rectCounter++;
+    }
+    float perc = max / pixelCount;
+    cout << "Frame " << framecount << "has the biggest percentage of white pixels on rect " << maxRectIndex << ": " << perc << endl;
+}
+
 int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
@@ -107,7 +125,8 @@ int main() {
     }
     int x = 0;
     int y = 0;
-    vector<Rect> grid = findCells(img, 120, x, y);
+    int frameCount = 1;
+    vector<Rect> grid = findCells(img, 240, x, y);
     vector<Mat> hists = findHistograms(img, grid);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
@@ -121,30 +140,29 @@ int main() {
         // s
         if (button == 119 && y >= 10) {
             y -= 10;
-            grid = findCells(img, 120, x, y);
-            hists = findHistograms(img, grid);
+            grid = findCells(img, 240, x, y);
         }
         // w
         if (button == 115 && y < img.rows) {
             y += 10;
-            grid = findCells(img, 120, x, y);
-            hists = findHistograms(img, grid);
+            grid = findCells(img, 240, x, y);
         }
         // d
         if (button == 100 && x < img.cols) {
             x += 10;
-            grid = findCells(img, 120, x, y);
-            hists = findHistograms(img, grid);
+            grid = findCells(img, 240, x, y);
         }
         // a
         if (button == 97 && x >= 10) {
             x -= 10;
-            grid = findCells(img, 120, x, y);
-            hists = findHistograms(img, grid);
+            grid = findCells(img, 240, x, y);
         }
+        hists = findHistograms(img, grid);
         for (Rect r : grid)
             rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        processHistograms(hists, 240, frameCount);
         imshow("test", img);
+        frameCount++;
     }
 
     destroyAllWindows();
