@@ -94,9 +94,17 @@ int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-
+    VideoCapture cap("ad2.mp4");
+    if (!cap.isOpened())
+    {
+        cout << "Nie mozna by³o odtworzyæ video.";
+        return -1;
+    }
     Mat img;
-    img = imread("image.jpg");
+    cap >> img;
+    if (img.empty()) {
+        return 0;
+    }
     int x = 0;
     int y = 0;
     vector<Rect> grid = findCells(img, 120, x, y);
@@ -104,7 +112,10 @@ int main() {
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
     while (true) {
-        imshow("test", img);
+        cap >> img;
+        if (img.empty()) {
+            return 0;
+        }
         int button = (char)waitKey(10);
         if (button == 27) break;
         // s
@@ -112,33 +123,28 @@ int main() {
             y -= 10;
             grid = findCells(img, 120, x, y);
             hists = findHistograms(img, grid);
-            for (Rect r : grid)
-                rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
         // w
         if (button == 115 && y < img.rows) {
             y += 10;
             grid = findCells(img, 120, x, y);
             hists = findHistograms(img, grid);
-            for (Rect r : grid)
-                rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
         // d
         if (button == 100 && x < img.cols) {
             x += 10;
             grid = findCells(img, 120, x, y);
             hists = findHistograms(img, grid);
-            for (Rect r : grid)
-                rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
         // a
         if (button == 97 && x >= 10) {
             x -= 10;
             grid = findCells(img, 120, x, y);
             hists = findHistograms(img, grid);
-            for (Rect r : grid)
-                rectangle(img, r, (255, 255, 255), 1, 8, 0);
         }
+        for (Rect r : grid)
+            rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        imshow("test", img);
     }
 
     destroyAllWindows();
