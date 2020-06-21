@@ -17,19 +17,19 @@ using namespace cv;
 
 //grid of image
 //TODO : grid should be able to include rects that aren square if we cant get squares.
-vector<Rect> findCells(Mat img, int GRID_SIZE)
+vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j)
 {
     vector<Rect> cells;
     int width = img.cols;
     cout << "Cols:" << width << endl;
     int height = img.rows;
     cout << "Rows:" << height << endl;
-    for (int y = 0; y < height; y += GRID_SIZE) {
-        for (int x = 0; x < width; x += GRID_SIZE) {
+    for (int y = j; y < height; y += GRID_SIZE) {
+        for (int x = i; x < width; x += GRID_SIZE) {
             //int k = x * y + x;
             int xw = GRID_SIZE;
             int yh = GRID_SIZE;
-            if (y + GRID_SIZE > height){
+            if (y + GRID_SIZE > height) {
                 yh = height - y;
             }
             if (x + GRID_SIZE > width) {
@@ -38,7 +38,7 @@ vector<Rect> findCells(Mat img, int GRID_SIZE)
             Rect grid_rect(x, y, xw, yh);
             cout << grid_rect << endl;
             cells.push_back(grid_rect);
-            waitKey();
+            //waitkey deleted
         }
     }
     return cells;
@@ -97,14 +97,48 @@ int main() {
 
     Mat img;
     img = imread("image.jpg");
-    vector<Rect> grid = findCells(img, 120);
-    findHistograms(img, grid);
+    int x = 0;
+    int y = 0;
+    vector<Rect> grid = findCells(img, 120, x, y);
+    vector<Mat> hists = findHistograms(img, grid);
     for (Rect r : grid)
         rectangle(img, r, (255, 255, 255), 1, 8, 0);
     while (true) {
         imshow("test", img);
         int button = (char)waitKey(10);
         if (button == 27) break;
+        // s
+        if (button == 119 && y >= 10) {
+            y -= 10;
+            grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
+        // w
+        if (button == 115 && y < img.rows) {
+            y += 10;
+            grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
+        // d
+        if (button == 100 && x < img.cols) {
+            x += 10;
+            grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
+        // a
+        if (button == 97 && x >= 10) {
+            x -= 10;
+            grid = findCells(img, 120, x, y);
+            hists = findHistograms(img, grid);
+            for (Rect r : grid)
+                rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        }
     }
 
     destroyAllWindows();
