@@ -38,7 +38,6 @@ vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j)
             Rect grid_rect(x, y, xw, yh);
             cout << grid_rect << endl;
             cells.push_back(grid_rect);
-            waitKey();
         }
     }
     return cells;
