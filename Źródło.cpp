@@ -17,15 +17,15 @@ using namespace cv;
 
 //grid of image
 //TODO : grid should be able to include rects that aren square if we cant get squares.
-vector<Rect> findCells(Mat img, int GRID_SIZE, int x, int y)
+vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j)
 {
     vector<Rect> cells;
     int width = img.cols;
     cout << "Cols:" << width << endl;
     int height = img.rows;
     cout << "Rows:" << height << endl;
-    for (y; y < height; y += GRID_SIZE) {
-        for (x; x < width; x += GRID_SIZE) {
+    for (int y = j; y < height; y += GRID_SIZE) {
+        for (int x = i; x < width; x += GRID_SIZE) {
             //int k = x * y + x;
             int xw = GRID_SIZE;
             int yh = GRID_SIZE;
