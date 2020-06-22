@@ -53,22 +53,28 @@ Mat imagePrep(Mat img) {
     Size s = Size(8, 2);
     cvtColor(img, done, COLOR_RGB2GRAY);
     //sobel filter
-    Sobel(done, done, CV_8U, 1, 1);
-    //structuring element
-    Mat kernel = getStructuringElement(MORPH_RECT, s);
-    dilate(done, done, kernel, Point(-1, -1), 2, 0);
-    erode(done, done, Mat(), Point(-1, -1), 3, 0);
+    //Sobel(done, done, CV_8UC1, 0, 1);
+    //erode(done, done, Mat(), Point(-1, -1), 2, 0);
+    //morphologyEx(done, done, MORPH_OPEN, CHAIN_APPROX_NONE);
+    //Mat kernel = getStructuringElement(MORPH_RECT, s);
+    //GaussianBlur(done, done, Point(3, 3), 1, 1, 0);
+    //erode(done, done, Mat(), Point(-1, -1), 1, 0);
+    //threshold(done, thresh, 0, 255, THRESH_OTSU + THRESH_BINARY);
+    GaussianBlur(done, done, Point(5, 5), 5, 5, 0);
+    morphologyEx(done, done, MORPH_OPEN, CHAIN_APPROX_NONE);
+    //Mat kernel = getStructuringElement(MORPH_RECT, s);
+    adaptiveThreshold(done, thresh, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 3, 3);
     
+    threshold(thresh, thresh, 0, 255, THRESH_OTSU + THRESH_BINARY);
+    dilate(thresh, thresh, Mat(), Point(-1, -1), 1, 0);
+    erode(thresh, thresh, Mat(), Point(-1, -1), 1, 0);
+    imshow("done", thresh);
     //GaussianBlur(done, done, Point(3, 3), 1, 1, 0);
     //erode(done, done, Mat(), Point(-1, -1), 1, 0);
     //dilate(done, done, kernel, Point(-1, -1), 1, 0);
-    //threshold     
-    threshold(done, thresh, 0, 255, THRESH_OTSU + THRESH_BINARY);
-    
-    //i have. no idea if below will work
-    morphologyEx(thresh, thresh, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
     //contours
-    findContours(thresh, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    findContours(thresh, contours, RETR_LIST, CHAIN_APPROX_NONE);
     for (int i = 0; i < contours.size(); i++) {
         Rect r = boundingRect(contours[i]);
         rectangle(img, r, Scalar(0, 0, 255));
@@ -129,9 +135,9 @@ void processHistogramsRedone(vector<Mat> hist1, vector<Mat> hist2, int size, int
             maxRectIndexB = i + 1;
         }
     }
-    cout << "Frame " << framecount << "has the biggest jump in quantity of white pixels at rect " << maxRectIndex << ": " << max << "%" << endl;
-    cout << "Frame " << framecount << "has the biggest jump in quantity of black pixels at rect " << maxRectIndexB << ": " << maxB << "%" << endl;
-    cout << endl << "==================================================" << endl;
+    //cout << "Frame " << framecount << "has the biggest jump in quantity of white pixels at rect " << maxRectIndex << ": " << max << "%" << endl;
+    //cout << "Frame " << framecount << "has the biggest jump in quantity of black pixels at rect " << maxRectIndexB << ": " << maxB << "%" << endl;
+    //cout << endl << "==================================================" << endl;
 }
 
 void processHistograms(vector<Mat> hist, int size, int framecount) {
@@ -149,14 +155,14 @@ void processHistograms(vector<Mat> hist, int size, int framecount) {
         rectCounter++;
     }
     float perc = max / pixelCount;
-    cout << "Frame " << framecount << "has the biggest percentage of white pixels on rect " << maxRectIndex << ": " << perc << endl;
+    //cout << "Frame " << framecount << "has the biggest percentage of white pixels on rect " << maxRectIndex << ": " << perc << endl;
 }
 
 int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-    VideoCapture cap("ad2.mp4");
+    VideoCapture cap("ad1.mp4");
     Mat img1, img2;
     Mat resized1(Size(990, 540), CV_64FC1);
     Mat resized2(Size(990, 540), CV_64FC1);
