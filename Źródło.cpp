@@ -118,55 +118,38 @@ int main() {
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
     VideoCapture cap("video_cc.mp4");
+    Mat img;
+    Mat resized(Size(990, 540), CV_64FC1);
     if (!cap.isOpened())
     {
         cout << "Nie mozna by³o odtworzyæ video.";
         return -1;
     }
-    Mat img;
-    Mat resized(Size(990, 540), CV_64FC1);
-    cap >> img;
-    if (img.empty()) {
-        return 0;
-    }
-    resize(img, resized, resized.size(), 0, 0, 1);
     int x = 0;
     int y = 0;
     int frameCount = 1;
-    vector<Rect> grid = findCells(resized, 240, x, y);
-    vector<Mat> hists = findHistograms(resized, grid);
-    for (Rect r : grid)
-        rectangle(resized, r, (255, 255, 255), 1, 8, 0);
     while (true) {
         cap >> img;
-        Mat temp = imagePrep(resized);
         if (img.empty()) {
             return 0;
         }
         resize(img, resized, resized.size(), 0, 0, 1);
+        Mat temp = imagePrep(resized);
+        vector<Rect> grid = findCells(resized, 240, x, y);
+        vector<Mat> hists = findHistograms(resized, grid);
+        for (Rect r : grid)
+            rectangle(resized, r, (255, 255, 255), 1, 8, 0);
         // Mat temp = imagePrep(img);
         int button = (char)waitKey(10);
         if (button == 27) break;
         // s
-        if (button == 119 && y >= 10) {
-            y -= 10;
-            grid = findCells(resized, 240, x, y);
-        }
+        if (button == 119 && y >= 10) y -= 10;
         // w
-        if (button == 115 && y < resized.rows) {
-            y += 10;
-            grid = findCells(resized, 240, x, y);
-        }
+        if (button == 115 && y < resized.rows) y += 10;
         // d
-        if (button == 100 && x < resized.cols) {
-            x += 10;
-            grid = findCells(resized, 240, x, y);
-        }
+        if (button == 100 && x < resized.cols) x += 10;
         // a
-        if (button == 97 && x >= 10) {
-            x -= 10;
-            grid = findCells(resized, 240, x, y);
-        }
+        if (button == 97 && x >= 10) x -= 10;
         hists = findHistograms(resized, grid);
         int i = 1;
         for (Rect r : grid) {
