@@ -61,7 +61,12 @@ Mat imagePrep(Mat img) {
     //i have. no idea if below will work
     morphologyEx(thresh, thresh, RETR_EXTERNAL, CHAIN_APPROX_NONE);
     //contours
-    return thresh;
+    findContours(thresh, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    for (int i = 0; i < contours.size(); i++) {
+        Rect r = boundingRect(contours[i]);
+        rectangle(img, r, Scalar(0, 0, 255));
+    }
+    return img;
 }
 
 vector<Mat> findHistograms(Mat img, vector<Rect> gr) {
@@ -112,7 +117,7 @@ int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-    VideoCapture cap("ad2.mp4");
+    VideoCapture cap("video_cc.mp4");
     if (!cap.isOpened())
     {
         cout << "Nie mozna by³o odtworzyæ video.";
@@ -134,10 +139,11 @@ int main() {
         rectangle(resized, r, (255, 255, 255), 1, 8, 0);
     while (true) {
         cap >> img;
-        resize(img, resized, resized.size(), 0, 0, 1);
+        Mat temp = imagePrep(resized);
         if (img.empty()) {
             return 0;
         }
+        resize(img, resized, resized.size(), 0, 0, 1);
         // Mat temp = imagePrep(img);
         int button = (char)waitKey(10);
         if (button == 27) break;
@@ -174,7 +180,7 @@ int main() {
         }
         processHistograms(hists, 240, frameCount);
         //imshow("test", temp);
-        imshow("test", resized);
+        imshow("resized", resized);
         frameCount++;
     }
 
