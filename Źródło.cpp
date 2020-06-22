@@ -62,11 +62,11 @@ Mat imagePrep(Mat img) {
     morphologyEx(thresh, thresh, RETR_EXTERNAL, CHAIN_APPROX_NONE);
     //contours
     findContours(thresh, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-    for (int i = 0; i < contours.size(); i++) {
-        Rect r = boundingRect(contours[i]);
-        rectangle(img, r, Scalar(0, 0, 255));
-    }
-    return img;
+    //for (int i = 0; i < contours.size(); i++) {
+    //    Rect r = boundingRect(contours[i]);
+    //    rectangle(img, r, Scalar(0, 0, 255));
+    //}
+    return thresh;
 }
 
 vector<Mat> findHistograms(Mat img, vector<Rect> gr) {
@@ -95,6 +95,37 @@ vector<Mat> findHistograms(Mat img, vector<Rect> gr) {
     return hists;
 }
 
+void processHistogramsRedone(vector<Mat> hist1, vector<Mat> hist2, int size, int framecount) {
+    int pixelCount = size * size;
+    float curr = 0;
+    float max = 0;
+    float maxB = 0;
+    int rectCounter = 1;
+    int maxRectIndex = 0;
+    int maxRectIndexB = 0;
+    int i = 0;
+    for (i = 0; i < hist1.size(); i++)
+    {
+        float prevFrame = hist1[i].at<float>(255);
+        float currFrame = hist2[i].at<float>(255);
+        float jump = -((prevFrame / pixelCount) - (currFrame / pixelCount));
+        if (max < jump) {
+            max = jump;
+            maxRectIndex = i + 1;
+        }
+        prevFrame = hist1[i].at<float>(0);
+        currFrame = hist2[i].at<float>(0);
+        jump = -((prevFrame / pixelCount) - (currFrame / pixelCount));
+        if (maxB < jump) {
+            maxB = jump;
+            maxRectIndexB = i + 1;
+        }
+    }
+    cout << "Frame " << framecount << "has the biggest jump in quantity of white pixels at rect " << maxRectIndex << ": " << max << "%" << endl;
+    cout << "Frame " << framecount << "has the biggest jump in quantity of black pixels at rect " << maxRectIndexB << ": " << maxB << "%" << endl;
+    cout << endl << "==================================================" << endl;
+}
+
 void processHistograms(vector<Mat> hist, int size, int framecount) {
     int pixelCount = size * size;
     float curr = 0;
@@ -117,7 +148,7 @@ int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-    VideoCapture cap("video_cc.mp4");
+    VideoCapture cap("ad2.mp4");
     Mat img;
     Mat resized(Size(990, 540), CV_64FC1);
     if (!cap.isOpened())
@@ -128,6 +159,12 @@ int main() {
     int x = 0;
     int y = 0;
     int frameCount = 1;
+    cap >> img;
+    resize(img, resized, resized.size(), 0, 0, 1);
+    Mat temp = imagePrep(resized);
+    vector<Rect> grid = findCells(resized, 80, x, y);
+    vector<Mat> hists1 = findHistograms(resized, grid);
+
     while (true) {
         cap >> img;
         if (img.empty()) {
@@ -135,11 +172,11 @@ int main() {
         }
         resize(img, resized, resized.size(), 0, 0, 1);
         Mat temp = imagePrep(resized);
-        vector<Rect> grid = findCells(resized, 240, x, y);
-        vector<Mat> hists = findHistograms(resized, grid);
+        vector<Rect> grid = findCells(resized, 80, x, y);
+        vector<Mat> hists2 = findHistograms(resized, grid);
         for (Rect r : grid)
             rectangle(resized, r, (255, 255, 255), 1, 8, 0);
-        // Mat temp = imagePrep(img);
+        //Mat temp = imagePrep(img);
         int button = (char)waitKey(10);
         if (button == 27) break;
         // s
@@ -150,19 +187,26 @@ int main() {
         if (button == 100 && x < resized.cols) x += 10;
         // a
         if (button == 97 && x >= 10) x -= 10;
-        hists = findHistograms(resized, grid);
+        processHistogramsRedone(hists1, hists2, 80, frameCount);
+        //hists = findHistograms(resized, grid);
+        vector<Mat> hists1 = findHistograms(resized, grid);
         int i = 1;
         for (Rect r : grid) {
             rectangle(resized, r, (255, 255, 255), 1, 8, 0);
-            putText(resized(r), to_string(i), Point(0, 45), //top-left position
+            putText(resized(r), to_string(i), Point(0, 45),
                 cv::FONT_HERSHEY_DUPLEX,
-                1.5,
+                1,
                 CV_RGB(118, 185, 0), //font color
                 2);
             i++;
         }
-        processHistograms(hists, 240, frameCount);
-        //imshow("test", temp);
+        putText(resized, to_string(frameCount), Point(20, 80),
+            cv::FONT_HERSHEY_DUPLEX,
+            2,
+            CV_RGB(255, 255, 255), //font color
+            2);
+        //processHistograms(hists, 80, frameCount);
+        imshow("test", temp);
         imshow("resized", resized);
         frameCount++;
     }
