@@ -119,49 +119,62 @@ int main() {
         return -1;
     }
     Mat img;
+    Mat resized(Size(990, 540), CV_64FC1);
     cap >> img;
     if (img.empty()) {
         return 0;
     }
+    resize(img, resized, resized.size(), 0, 0, 1);
     int x = 0;
     int y = 0;
     int frameCount = 1;
-    vector<Rect> grid = findCells(img, 240, x, y);
-    vector<Mat> hists = findHistograms(img, grid);
+    vector<Rect> grid = findCells(resized, 240, x, y);
+    vector<Mat> hists = findHistograms(resized, grid);
     for (Rect r : grid)
-        rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        rectangle(resized, r, (255, 255, 255), 1, 8, 0);
     while (true) {
         cap >> img;
+        resize(img, resized, resized.size(), 0, 0, 1);
         if (img.empty()) {
             return 0;
         }
+        // Mat temp = imagePrep(img);
         int button = (char)waitKey(10);
         if (button == 27) break;
         // s
         if (button == 119 && y >= 10) {
             y -= 10;
-            grid = findCells(img, 240, x, y);
+            grid = findCells(resized, 240, x, y);
         }
         // w
-        if (button == 115 && y < img.rows) {
+        if (button == 115 && y < resized.rows) {
             y += 10;
-            grid = findCells(img, 240, x, y);
+            grid = findCells(resized, 240, x, y);
         }
         // d
-        if (button == 100 && x < img.cols) {
+        if (button == 100 && x < resized.cols) {
             x += 10;
-            grid = findCells(img, 240, x, y);
+            grid = findCells(resized, 240, x, y);
         }
         // a
         if (button == 97 && x >= 10) {
             x -= 10;
-            grid = findCells(img, 240, x, y);
+            grid = findCells(resized, 240, x, y);
         }
-        hists = findHistograms(img, grid);
-        for (Rect r : grid)
-            rectangle(img, r, (255, 255, 255), 1, 8, 0);
+        hists = findHistograms(resized, grid);
+        int i = 1;
+        for (Rect r : grid) {
+            rectangle(resized, r, (255, 255, 255), 1, 8, 0);
+            putText(resized(r), to_string(i), Point(0, 45), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.5,
+                CV_RGB(118, 185, 0), //font color
+                2);
+            i++;
+        }
         processHistograms(hists, 240, frameCount);
-        imshow("test", img);
+        //imshow("test", temp);
+        imshow("test", resized);
         frameCount++;
     }
 
