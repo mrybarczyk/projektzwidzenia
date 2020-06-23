@@ -50,7 +50,7 @@ Mat imagePrep(Mat img) {
     //vector<Vec4i> hierarchy;
     Mat done;
     Mat thresh;
-    Size s = Size(8, 2);
+    Size s = Size(8,2);
     cvtColor(img, done, COLOR_RGB2GRAY);
     //sobel filter
     //Sobel(done, done, CV_8UC1, 0, 1);
@@ -60,13 +60,12 @@ Mat imagePrep(Mat img) {
     //GaussianBlur(done, done, Point(3, 3), 1, 1, 0);
     //erode(done, done, Mat(), Point(-1, -1), 1, 0);
     //threshold(done, thresh, 0, 255, THRESH_OTSU + THRESH_BINARY);
-    GaussianBlur(done, done, Point(5, 5), 5, 5, 0);
-    morphologyEx(done, done, MORPH_OPEN, CHAIN_APPROX_NONE);
-    //Mat kernel = getStructuringElement(MORPH_RECT, s);
+    GaussianBlur(done, done, Point(11, 11), 9, 3, 0);
+    morphologyEx(done, done, MORPH_CLOSE, CHAIN_APPROX_NONE);
     adaptiveThreshold(done, thresh, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 3, 3);
-    
     threshold(thresh, thresh, 0, 255, THRESH_OTSU + THRESH_BINARY);
-    dilate(thresh, thresh, Mat(), Point(-1, -1), 1, 0);
+    Mat kernel = getStructuringElement(MORPH_RECT, s);
+    dilate(thresh, thresh, kernel, Point(-1, -1), 2, 0);
     erode(thresh, thresh, Mat(), Point(-1, -1), 1, 0);
     imshow("done", thresh);
     //GaussianBlur(done, done, Point(3, 3), 1, 1, 0);
@@ -162,7 +161,7 @@ int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-    VideoCapture cap("ad1.mp4");
+    VideoCapture cap("video_nocc.mp4");
     Mat img1, img2;
     Mat resized1(Size(990, 540), CV_64FC1);
     Mat resized2(Size(990, 540), CV_64FC1);
