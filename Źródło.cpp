@@ -3,6 +3,7 @@
 #include<opencv2/video.hpp>
 #include<opencv2/imgcodecs.hpp>
 #include<iostream>
+#include<fstream>
 #include<stdio.h>
 #include<conio.h>
 #include<Windows.h>
@@ -50,14 +51,14 @@ Mat imagePrep(Mat img) {
     //vector<Vec4i> hierarchy;
     Mat done;
     Mat thresh;
-    Size s = Size(8, 2);
+    Size s = Size(5, 5);
     cvtColor(img, done, COLOR_RGB2GRAY);
     //sobel filter
-    Sobel(done, done, CV_8U, 1, 0);
+    Sobel(done, done, CV_8U, 1, 1);
     //structuring element
     Mat kernel = getStructuringElement(MORPH_RECT, s);
     dilate(done, done, kernel, Point(-1, -1), 2, 0);
-    erode(done, done, Mat(), Point(-1, -1), 3, 0);
+    erode(done, done, Mat(), Point(-1, -1), 1, 0);
 
     //GaussianBlur(done, done, Point(3, 3), 1, 1, 0);
     //erode(done, done, Mat(), Point(-1, -1), 1, 0);
@@ -77,7 +78,7 @@ Mat imagePrep(Mat img) {
         int h = r.height;
         int w = r.width;
         float ar = w / h;
-        if (ar >= 5) cout << "Contour found" << endl;
+        if (ar >= 3) cout << "Contour found" << endl;
         else drawContours(thresh, contours, i, Scalar(0, 0, 0), CV_FILLED);
         rectangle(img, r, Scalar(0, 0, 255));
     }
@@ -164,10 +165,12 @@ int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-    VideoCapture cap("ad1.mp4");
+    VideoCapture cap("video_nocc.mp4");
     Mat img1, img2;
     Mat resized1(Size(990, 540), CV_64FC1);
     Mat resized2(Size(990, 540), CV_64FC1);
+    ofstream f;
+    f.open("file.txt");
     if (!cap.isOpened())
     {
         cout << "Nie mozna by³o odtworzyæ video.";
@@ -176,7 +179,6 @@ int main() {
     int x = 0;
     int y = 0;
     int frameCount = 1;
-
     while (true) {
         cap >> img1;
         if (img1.empty()) {
@@ -186,6 +188,8 @@ int main() {
         if (img2.empty()) {
             return 0;
         }
+        boolean detected = false;
+        int sizecounter = 0;
         resize(img1, resized1, resized1.size(), 0, 0, 1);
         resize(img2, resized2, resized2.size(), 0, 0, 1);
         Mat temp1 = imagePrep(resized1);
@@ -226,11 +230,21 @@ int main() {
             CV_RGB(255, 255, 255), //font color
             2);
         //processHistograms(hists, 80, frameCount);
+        for (int i = x; i < temp1.rows; i++) {
+            for (int j = y; j < temp1.cols; j++) {
+                Scalar color = temp1.at<uchar>(i, j);
+                if (color[0] == 255) sizecounter += 1;
+            }
+        }
+        if (sizecounter >= 15000) detected = true;
+        if (detected) {
+            f << "Subtitles detected: " << to_string(frameCount) << "\n";
+        }
         imshow("test", temp1);
         imshow("resized", resized1);
         frameCount++;
     }
-
+    f.close();
     destroyAllWindows();
     return 0;
 }
