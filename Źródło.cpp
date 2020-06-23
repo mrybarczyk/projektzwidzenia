@@ -18,13 +18,10 @@ using namespace cv;
 
 //grid of image
 //TODO : grid should be able to include rects that aren square if we cant get squares.
-vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j)
+vector<Rect> findCells(Mat img, int GRID_SIZE, int i, int j, int width, int height)
 {
     vector<Rect> cells;
-    int width = img.cols;
-    //cout << "Cols:" << width << endl;
-    int height = img.rows;
-    //cout << "Rows:" << height << endl;
+    cout << img.rows << img.cols << endl;
     for (int y = j; y < height; y += GRID_SIZE) {
         for (int x = i; x < width; x += GRID_SIZE) {
             //int k = x * y + x;
@@ -178,6 +175,8 @@ int main() {
     }
     int x = 0;
     int y = 0;
+    int height = 540;
+    int width = 990;
     int frameCount = 1;
     while (true) {
         cap >> img1;
@@ -194,8 +193,8 @@ int main() {
         resize(img2, resized2, resized2.size(), 0, 0, 1);
         Mat temp1 = imagePrep(resized1);
         Mat temp2 = imagePrep(resized2);
-        vector<Rect> grid1 = findCells(resized1, 80, x, y);
-        vector<Rect> grid2 = findCells(resized2, 80, x, y);
+        vector<Rect> grid1 = findCells(resized1, 80, x, y, width, height);
+        vector<Rect> grid2 = findCells(resized2, 80, x, y, width, height);
         vector<Mat> hists1 = findHistograms(resized1, grid1);
         vector<Mat> hists2 = findHistograms(resized2, grid2);
         for (Rect r : grid1)
@@ -206,13 +205,21 @@ int main() {
         int button = (char)waitKey(10);
         if (button == 27) break;
         // s
-        if (button == 119 && y >= 10) y -= 10;
+        if (button == 119 && y >= 50) y -= 50;
         // w
-        if (button == 115 && y < resized1.rows) y += 10;
+        if (button == 115 && y < resized1.rows-50) y += 50;
         // d
-        if (button == 100 && x < resized1.cols) x += 10;
+        if (button == 100 && x < resized1.cols-50) x += 50;
         // a
-        if (button == 97 && x >= 10) x -= 10;
+        if (button == 97 && x >= 50) x -= 50;
+        // z - smaller width
+        if (button == 122 && width >= 50) width -= 50;
+        // x - bigger width
+        if (button == 120 && width <= resized1.cols-50) width += 50;
+        // c - smaller height
+        if (button == 99 && height >= 50) height -= 50;
+        // v - bigger height
+        if (button == 118 && height <= resized1.rows-50) height -= 50;
         processHistogramsRedone(hists1, hists2, 80, frameCount);
         int i = 1;
         for (Rect r : grid1) {
@@ -230,8 +237,8 @@ int main() {
             CV_RGB(255, 255, 255), //font color
             2);
         //processHistograms(hists, 80, frameCount);
-        for (int i = x; i < temp1.rows; i++) {
-            for (int j = y; j < temp1.cols; j++) {
+        for (int i = x; i < height; i++) {
+            for (int j = y; j < width; j++) {
                 Scalar color = temp1.at<uchar>(i, j);
                 if (color[0] == 255) sizecounter += 1;
             }
