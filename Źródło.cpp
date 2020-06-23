@@ -165,7 +165,7 @@ int main() {
 
     // EXAMPLE OF CORRECT APPLICATION OF FILTER TO ONLY ONE RECT
     //GaussianBlur(img(grid[1]), img(grid[1]), Point(101, 101), 5, 5, 0);
-    VideoCapture cap("video_nocc.mp4");
+    VideoCapture cap("ad4.mp4");
     Mat img1, img2;
     Mat resized1(Size(990, 540), CV_64FC1);
     Mat resized2(Size(990, 540), CV_64FC1);
@@ -236,7 +236,7 @@ int main() {
                 if (color[0] == 255) sizecounter += 1;
             }
         }
-        if (sizecounter >= 15000) detected = true;
+        if ((float)((float)sizecounter / (float)(temp1.rows*temp1.cols)) >= 0.03) detected = true;
         if (detected) {
             f << "Subtitles detected: " << to_string(frameCount) << "\n";
         }
